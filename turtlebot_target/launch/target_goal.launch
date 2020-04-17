@@ -1,0 +1,3 @@
+<launch>
+ <node pkg="turtlebot_target" type="table_num.py" name="map" />
+</launch>
