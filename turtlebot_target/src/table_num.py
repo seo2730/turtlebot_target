@@ -9,7 +9,9 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 # Map subscribe
 from nav_msgs.msg import OccupancyGrid
 
-#keyboard in Linux
+import time
+
+# Keyboard in Linux
 import sys
 import tty
 import termios
@@ -24,7 +26,7 @@ def getKey():
         termios.tcsetattr(fd, termios.TCSADRAIN, original_attributes)
     return ch
 
-def movebase_client(x,y):
+def movebase_client(x,y,z):
 
    # Create an action client called "move_base" with action definition file "MoveBaseAction"
     client = actionlib.SimpleActionClient('move_base',MoveBaseAction)
@@ -40,6 +42,7 @@ def movebase_client(x,y):
     goal.target_pose.pose.position.x = x
     goal.target_pose.pose.position.y = y
    # No rotation of the mobile base frame w.r.t. map frame
+    goal.target_pose.pose.orientation.z = z
     goal.target_pose.pose.orientation.w = 1.0
 
    # Sends the goal to the action server.
@@ -63,18 +66,29 @@ if __name__ == '__main__':
             key = getKey()
             if key == 'q':
                 print("Go to Q place")
-                movebase_client(2.5,1.5)
-                movebase_client(0.0,0.0)
+                movebase_client(2.5,1.5,1.0)
+                # robot arm #
+                print("Setting a pizza")
+                time.sleep(2)
+                movebase_client(0.0,0.0,0.0)
             
             elif key == 'w':
                 print("Go to W place")
-                movebase_client(1.5,2.5)
-                movebase_client(0.0,0.0)
+                movebase_client(1.5,2.5,-1.0)
+                # robot arm #
+                print("Setting a pizza")
+                time.sleep(2)
+                movebase_client(0.0,0.0,0.0)
 
             elif key == 'e':
                 print("Go to E place")
-                movebase_client(2.0,0.0)
-                movebase_client(0.0,0.0)
+                movebase_client(2.0,0.0,-0.5)
+                # robot arm #
+                print("Setting a pizza")
+                time.sleep(2)
+                movebase_client(0.0,0.0,0.0)
+            
+            
         
     except rospy.ROSInterruptException:
         rospy.loginfo("Navigation test finished.")
