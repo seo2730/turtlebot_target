@@ -8,6 +8,8 @@ import actionlib
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 # Map subscribe
 from nav_msgs.msg import OccupancyGrid
+# Msg file for int 8
+from std_msgs.msg import Int8
 
 import time
 
@@ -25,6 +27,17 @@ def getKey():
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, original_attributes)
     return ch
+
+def arm_state(s):
+    rospy.init_node('table_num')
+    pub = rospy.Publisher('/arm',Int8,queue_size=10)
+
+    rate = rospy.Rate(50) # 50Hz
+
+    state = s
+
+    pub.publish(state)
+    rate.sleep()
 
 def movebase_client(x,y,z):
 
@@ -67,27 +80,32 @@ if __name__ == '__main__':
             if key == 'q':
                 print("Go to Q place")
                 movebase_client(2.5,1.5,1.0)
-                # robot arm #
+                # robot arm 1:Up 0:Down#
                 print("Setting a pizza")
+                arm_state(0) # Down
                 time.sleep(2)
+                arm_state(1) # Up
                 movebase_client(0.0,0.0,0.0)
             
             elif key == 'w':
                 print("Go to W place")
                 movebase_client(1.5,2.5,-1.0)
-                # robot arm #
+                # robot arm 1:Up 0:Down#
                 print("Setting a pizza")
+                arm_state(0) # Down
                 time.sleep(2)
+                arm_state(1) # Up                
                 movebase_client(0.0,0.0,0.0)
 
             elif key == 'e':
                 print("Go to E place")
                 movebase_client(2.0,0.0,-0.5)
-                # robot arm #
+                # robot arm 1:Up 0:Down#
                 print("Setting a pizza")
+                arm_state(0) # Down
                 time.sleep(2)
-                movebase_client(0.0,0.0,0.0)
-            
+                arm_state(1) # Up  
+                movebase_client(0.0,0.0,0.0)           
             
         
     except rospy.ROSInterruptException:
