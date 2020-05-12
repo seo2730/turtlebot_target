@@ -9,24 +9,32 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 # Map subscribe
 from nav_msgs.msg import OccupancyGrid
 
+# delay 
 import time
 
-# Keyboard in Linux
-import sys
-import tty
-import termios
+# Database server
+import pymysql
 
-def getKey():
-    fd = sys.stdin.fileno()
-    original_attributes = termios.tcgetattr(fd)
-    try:
-        tty.setraw(sys.stdin.fileno())
-        ch = sys.stdin.read(1)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, original_attributes)
-    return ch
+# MySQL Connection 
+#conn = pymysql.connect(host='rmsghdk.dothome.co.kr',user='rmsghdk',
+#                   password='capstone!12',db='rmsghdk',charset='utf8mb4')
+conn = pymysql.connect(host='localhost',user='duckbe',
+                   password='capstone!12',db='phpmyadmin',charset='utf8mb4')
 
-def movebase_client(x,y,z):
+# Cursor
+curs = conn.cursor()
+
+#SQL
+sql = "SELECT * FROM FinalOrder"
+curs.execute(sql)
+
+# Data Fetch
+rows = curs.fetchall()
+targets = []
+for row in rows:
+    targets.insert(0,row[1])
+
+def movebase_client(x,y):
 
    # Create an action client called "move_base" with action definition file "MoveBaseAction"
     client = actionlib.SimpleActionClient('move_base',MoveBaseAction)
@@ -42,7 +50,6 @@ def movebase_client(x,y,z):
     goal.target_pose.pose.position.x = x
     goal.target_pose.pose.position.y = y
    # No rotation of the mobile base frame w.r.t. map frame
-    goal.target_pose.pose.orientation.z = z
     goal.target_pose.pose.orientation.w = 1.0
 
    # Sends the goal to the action server.
@@ -59,43 +66,35 @@ def movebase_client(x,y,z):
 
 # If the python node is executed as main process (sourced directly)
 if __name__ == '__main__':
-    if os.name != 'nt':
-        settings = termios.tcgetattr(sys.stdin)
-        
     rospy.init_node('movebase_client_py')
     try:
        # Initializes a rospy node to let the SimpleActionClient publish and subscribe
-        while(1):
-            key = getKey()
-            if key == 'q':
-                print("Go to Q place")
-                movebase_client(2.5,1.5,1.0)
-                # robot arm #
-                print("Setting a pizza")
-                time.sleep(2)
-                movebase_client(0.0,0.0,0.0)
-            
-            elif key == 'w':
-                print("Go to W place")
-                movebase_client(1.5,2.5,-1.0)
-                # robot arm #
-                print("Setting a pizza")
-                time.sleep(2)
-                movebase_client(0.0,0.0,0.0)
+       while(1):
+            for target in targets:
+                data = targets.pop()
+                if data == 1:
+                    print("Go to table1 place")
+                    movebase_client(2.5,1.5)
+                    # robot arm #
+                    print("Setting a pizza")
+                    time.sleep(2)
+                    movebase_client(0.0,0.0)
 
-            elif key == 'e':
-                print("Go to E place")
-                movebase_client(2.0,0.0,-0.5)
-                # robot arm #
-                print("Setting a pizza")
-                time.sleep(2)
-                movebase_client(0.0,0.0,0.0)
-            
-            
-        
+                elif data == 2:
+                    print("Go to table2 place")
+                    movebase_client(1.5,2.5)
+                    # robot arm #
+                    print("Setting a pizza")
+                    time.sleep(2)
+                    movebase_client(0.0,0.0)
+
+                elif data == 3:
+                    print("Go to table3 place")
+                    movebase_client(1.5,-0.5)
+                    # robot arm #
+                    print("Setting a pizza")
+                    time.sleep(2)
+                    movebase_client(0.0,0.0)
+
     except rospy.ROSInterruptException:
         rospy.loginfo("Navigation test finished.")
-
-
-    if os.name != 'nt':
-        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
