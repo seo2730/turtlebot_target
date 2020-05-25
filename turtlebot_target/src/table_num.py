@@ -9,6 +9,8 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 # Map subscribe
 from nav_msgs.msg import OccupancyGrid
 
+from std_msgs.msg import UInt8
+
 import time
 
 # Keyboard in Linux
@@ -57,38 +59,44 @@ def movebase_client(x,y,z):
     # Result of executing the action
         return client.get_result()   
 
+def arm(a):
+    arm = a
+    pub.publish(arm)
+    
 # If the python node is executed as main process (sourced directly)
 if __name__ == '__main__':
-    if os.name != 'nt':
-        settings = termios.tcgetattr(sys.stdin)
-        
-    rospy.init_node('movebase_client_py')
+    rospy.init_node('moving_serving')
+    pub = rospy.Publisher('serving', UInt8 ,queue_size=10)
+
     try:
        # Initializes a rospy node to let the SimpleActionClient publish and subscribe
-        while(1):
+        while not rospy.is_shutdown():
             key = getKey()
             if key == 'q':
+                arm(1)
                 print("Go to Q place")
                 movebase_client(2.5,1.5,1.0)
                 # robot arm #
                 print("Setting a pizza")
-                time.sleep(2)
+                arm(0)
                 movebase_client(0.0,0.0,0.0)
             
             elif key == 'w':
+                arm(1)
                 print("Go to W place")
                 movebase_client(1.5,2.5,-1.0)
                 # robot arm #
                 print("Setting a pizza")
-                time.sleep(2)
+                arm(0)
                 movebase_client(0.0,0.0,0.0)
 
             elif key == 'e':
+                arm(1)
                 print("Go to E place")
-                movebase_client(2.0,0.0,-0.5)
+                movebase_client(2.0,0.0,0.0)
                 # robot arm #
                 print("Setting a pizza")
-                time.sleep(2)
+                arm(0)
                 movebase_client(0.0,0.0,0.0)
             
             

@@ -1,4 +1,3 @@
 <launch>
  <node pkg="turtlebot_target" type="table_num.py" name="map" output="screen"/> 
- <!-- <node pkg="turtlebot_target" type="turtlebot3_arm.py" name="turtlebot3_arm" output="screen"/> -->
 </launch>
